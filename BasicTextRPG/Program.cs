@@ -44,18 +44,21 @@ namespace BasicTextRPG
         static void Main()
         {
             StartUp();
-            DrawMap();
-            Console.ReadKey(true);
-            levelNumber = 2;
-            ChangeLevels();
-            DrawMap();
-            Console.ReadKey(true);
-            levelNumber = 3;
-            ChangeLevels();
-            DrawMap();
-            Console.ReadKey(true);
-            levelNumber = 0;
-            ChangeLevels();
+            while(!gameIsOver)
+            {
+                DrawMap();
+                Console.ReadKey(true);
+                levelNumber = 2;
+                ChangeLevels();
+                DrawMap();
+                Console.ReadKey(true);
+                levelNumber = 3;
+                ChangeLevels();
+                DrawMap();
+                Console.ReadKey(true);
+                // levelNumber = 0; debug tests
+                // ChangeLevels();
+            }
         }
         static void StartUp()
         {
@@ -64,6 +67,8 @@ namespace BasicTextRPG
             basePlayerHP = 10;
             baseEnemyHP = 6;
             levelNumber = 1;
+            playerDamage = 1;
+            playerCoins = 0;
             floorMap = File.ReadAllLines(path);
             borderLength = floorMap[0].Length + 2;
             gameIsOver = false;
@@ -285,7 +290,7 @@ namespace BasicTextRPG
                 Console.Clear();
                 Console.WriteLine("Level Out of range, closing");
                 Console.ReadKey(true);
-                Environment.Exit(0);
+                gameIsOver = true;
             }
         }
     }
