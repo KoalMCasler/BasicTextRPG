@@ -53,20 +53,10 @@ namespace BasicTextRPG
         static void Main()
         {
             StartUp();
-            while(!gameIsOver)
+            while(gameIsOver != true)
             {
                 DrawMap();
                 GetInput();
-                //levelNumber = 2;
-                //ChangeLevels();
-                //DrawMap();
-                //GetInput();
-                //levelNumber = 3;
-                //ChangeLevels();
-                //DrawMap();
-                //GetInput();
-                //levelNumber = 0; //debug tests
-                //ChangeLevels();
             }
         }
         static void StartUp()
