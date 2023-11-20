@@ -38,8 +38,8 @@ namespace BasicTextRPG
         static int playerCoins;
         static ConsoleKeyInfo input;
         //Enemy Variables
-        static int baseEnemyHP;
-        static int enemyDamage;
+        static int baseEnemyHP = 5;
+        static int enemyDamage = 1;
 
         static void Main()
         {
@@ -56,8 +56,8 @@ namespace BasicTextRPG
                 ChangeLevels();
                 DrawMap();
                 Console.ReadKey(true);
-                // levelNumber = 0; debug tests
-                // ChangeLevels();
+                levelNumber = 0; //debug tests
+                ChangeLevels();
             }
         }
         static void StartUp()
@@ -260,6 +260,26 @@ namespace BasicTextRPG
                 DrawFinalLoot();
                 return;
             }
+            if(tile == '@')
+            {
+                DrawCoin();
+                return;
+            }
+            if(tile == '!')
+            {
+                DrawEnemy(1);
+                return;
+            }
+            if(tile == '?')
+            {
+                DrawEnemy(2);
+                return;
+            }
+            if(tile == '+')
+            {
+                DrawPlayer();
+                return;
+            }
             else
             {
                 Console.Write(tile);
@@ -288,9 +308,9 @@ namespace BasicTextRPG
             if(levelNumber > 3 || levelNumber <= 0)
             {
                 Console.Clear();
-                Console.WriteLine("Level Out of range, closing");
-                Console.ReadKey(true);
-                gameIsOver = true;
+                Console.WriteLine("Level Out of range, Loading level 1");
+                path = path1;
+                floorMap = File.ReadAllLines(path);
             }
         }
     }
