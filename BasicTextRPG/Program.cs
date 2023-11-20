@@ -53,6 +53,8 @@ namespace BasicTextRPG
         static void Main()
         {
             StartUp();
+            Intro();
+            Console.Clear();
             while(gameIsOver != true)
             {
                 DrawMap();
@@ -334,6 +336,8 @@ namespace BasicTextRPG
         }
         static void GetInput()
         {
+            int newX;
+            int newY;
             Console.SetCursorPosition(playerX,playerY);
             DrawPlayer();
             playerInput = Console.ReadKey(true);
@@ -341,19 +345,40 @@ namespace BasicTextRPG
             if(playerInput.Key == ConsoleKey.W || playerInput.Key == ConsoleKey.UpArrow)
             {
                 //Moves player up
-                
+                newY = playerY - 1;
+                if(dungeonMap[newY,playerX] == dungeonWall)
+                {newY = playerY;}
+                if(dungeonMap[newY,playerX] == dungeonFloor)
+                {
+                    dungeonMap[newY,playerX] = player;
+                }
+
+
             }if(playerInput.Key == ConsoleKey.S || playerInput.Key == ConsoleKey.DownArrow)
             {
                 //Moves player down
-                
+
+                if(dungeonMap[playerY,playerX] == dungeonWall)
+                {return;}
+
             }if(playerInput.Key == ConsoleKey.A || playerInput.Key == ConsoleKey.LeftArrow)
             {
                 //Moves player left
-                
+                if(dungeonMap[playerY,playerX] == dungeonWall)
+                {return;}
+                else
+                {
+
+                }
             }if(playerInput.Key == ConsoleKey.D || playerInput.Key == ConsoleKey.RightArrow)
             {
                 //Moves player right
-                
+                if(dungeonMap[playerY,playerX] == dungeonWall)
+                {return;}
+                else
+                {
+
+                }
             }
             if(playerInput.Key == ConsoleKey.Escape)
             {
@@ -362,7 +387,10 @@ namespace BasicTextRPG
         }
         static void CollisionCheck()
         {
+            if(dungeonMap[playerY,playerX] == dungeonWall)
+            {
 
+            }
         }
         static void MakeDungeonMap()
         {
@@ -373,6 +401,13 @@ namespace BasicTextRPG
                  dungeonMap[i, j] = floorMap[i][j];
                 }
             }
+        }
+        static void Intro()
+        {
+            Console.WriteLine("Kill all they enemies on each floor to get to the next");
+            Console.WriteLine("Collect as much gold as you can along the way");
+            Console.WriteLine("Press any key to get stated, Escape will exit once in game.");
+            Console.ReadKey(true);
         }
     }
 }
