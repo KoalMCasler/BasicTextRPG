@@ -29,12 +29,14 @@ namespace BasicTextRPG
         static char enemy1 = ((char)4);
         static char enemy2 = ((char)6);
         static string[] floorMap;
-        static string mapRow;
+        static char[,] dungeonMap;
         static int borderLength;
         static int levelNumber;
         static bool levelChanged;
         static int playerMaxX;
-        static int playerMaxY;        
+        static int playerMaxY;  
+        static int mapX;
+        static int mapY;      
         //Player variables
         static bool gameIsOver;
         static int basePlayerHP;
@@ -46,6 +48,7 @@ namespace BasicTextRPG
         //Enemy Variables
         static int baseEnemyHP = 5;
         static int enemyDamage = 1;
+        static int enemyCount;
 
         static void Main()
         {
@@ -69,16 +72,19 @@ namespace BasicTextRPG
         static void StartUp()
         {
             //Sets up starting state of the game.
-            path = path1;
             basePlayerHP = 10;
             baseEnemyHP = 6;
             levelNumber = 1;
             playerDamage = 1;
             playerCoins = 0;
+            enemyCount = 0;
+            path = path1;
             floorMap = File.ReadAllLines(path);
-            playerMaxX = floorMap[0].Length + 2;
-            playerMaxY = floorMap.Length + 2;
-            borderLength = floorMap[0].Length + 2;
+            dungeonMap = new char[floorMap.Length, floorMap[0].Length];
+            MakeDungeonMap();
+            mapX = dungeonMap.GetLength(1);
+            mapY = dungeonMap.GetLength(0);
+            borderLength = dungeonMap.GetLength(1)+2;
             gameIsOver = false;
             levelChanged = false;
         }
@@ -86,24 +92,31 @@ namespace BasicTextRPG
         {
             //Draws the map of the current level
             Console.SetCursorPosition(0,0);
+            if(levelChanged == true)
+            {
+                enemyCount = 0;
+            }
             for(int i = 0; i < borderLength; i++)
             {
                 DrawBorder();
             }
             Console.Write("\n");
-            for(int y = 0; y < floorMap.Length; y++)
+            for(int y = 0; y < mapY; y++)
             {
-                mapRow = floorMap[y];
                 DrawBorder();
-                for(int x = 0; x < mapRow.Length; x++)
+                for(int x = 0; x < mapX; x++)
                 {
-                    char tile = mapRow[x];
+                    char tile = dungeonMap[y,x];
                     DrawTile(tile);
                     if(tile == '=' && levelChanged == false)
                     {
                         playerX = x+1;
                         playerY = y+1;
                         levelChanged = true;
+                    }
+                    if(tile == '!' || tile == '?')
+                    {
+                        enemyCount += 1;
                     }
                 }
                 DrawBorder();
@@ -338,63 +351,37 @@ namespace BasicTextRPG
             if(playerInput.Key == ConsoleKey.W || playerInput.Key == ConsoleKey.UpArrow)
             {
                 //Moves player up
-                playerY -= 1;
-                if(playerY < 0)
-                {
-                    playerY = 0;
-                }
-                if(mapRow[playerX] == dungeonWall && floorMap[playerY] == mapRow)
-                {
-                    playerY += 1;
-                }
-                Console.SetCursorPosition(playerX,playerY);
-                DrawPlayer();
+                
             }if(playerInput.Key == ConsoleKey.S || playerInput.Key == ConsoleKey.DownArrow)
             {
                 //Moves player down
-                playerY += 1;
-                if(playerX > playerMaxX)
-                {
-                    playerX = playerMaxX;
-                }
-                if(mapRow[playerX] == dungeonWall && floorMap[playerY] == mapRow)
-                {
-                    playerY -= 1;
-                }
-                Console.SetCursorPosition(playerX,playerY);
-                DrawPlayer();
+                
             }if(playerInput.Key == ConsoleKey.A || playerInput.Key == ConsoleKey.LeftArrow)
             {
                 //Moves player left
-                playerX -= 1;
-                if(playerX < 0)
-                {
-                    playerX = 0;
-                }
-                if(mapRow[playerX] == dungeonWall && floorMap[playerY] == mapRow)
-                {
-                    playerX += 1;
-                }
-                Console.SetCursorPosition(playerX,playerY);
-                DrawPlayer();
+                
             }if(playerInput.Key == ConsoleKey.D || playerInput.Key == ConsoleKey.RightArrow)
             {
                 //Moves player right
-                playerX += 1;
-                if(playerY > playerMaxY)
-                {
-                    playerY = playerMaxY;
-                }
-                if(mapRow[playerX] == dungeonWall)
-                {
-                    playerX -= 1;
-                }
-                Console.SetCursorPosition(playerX,playerY);
-                DrawPlayer();
+                
             }
             if(playerInput.Key == ConsoleKey.Escape)
             {
                Environment.Exit(0);
+            }
+        }
+        static void CollisionCheck()
+        {
+
+        }
+        static void MakeDungeonMap()
+        {
+            for (int i = 0; i < floorMap.Length; i++)
+            {
+                for (int j = 0; j < floorMap[i].Length; j++)
+                {
+                 dungeonMap[i, j] = floorMap[i][j];
+                }
             }
         }
     }
