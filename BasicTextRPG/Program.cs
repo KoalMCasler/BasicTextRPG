@@ -29,14 +29,20 @@ namespace BasicTextRPG
         static char enemy1 = ((char)4);
         static char enemy2 = ((char)6);
         static string[] floorMap;
+        static string mapRow;
         static int borderLength;
         static int levelNumber;
+        static bool levelChanged;
+        static int playerMaxX;
+        static int playerMaxY;        
         //Player variables
         static bool gameIsOver;
         static int basePlayerHP;
         static int playerDamage;
         static int playerCoins;
-        static ConsoleKeyInfo input;
+        static int playerX;
+        static int playerY;
+        static ConsoleKeyInfo playerInput;
         //Enemy Variables
         static int baseEnemyHP = 5;
         static int enemyDamage = 1;
@@ -47,17 +53,17 @@ namespace BasicTextRPG
             while(!gameIsOver)
             {
                 DrawMap();
-                Console.ReadKey(true);
-                levelNumber = 2;
-                ChangeLevels();
-                DrawMap();
-                Console.ReadKey(true);
-                levelNumber = 3;
-                ChangeLevels();
-                DrawMap();
-                Console.ReadKey(true);
-                levelNumber = 0; //debug tests
-                ChangeLevels();
+                GetInput();
+                //levelNumber = 2;
+                //ChangeLevels();
+                //DrawMap();
+                //GetInput();
+                //levelNumber = 3;
+                //ChangeLevels();
+                //DrawMap();
+                //GetInput();
+                //levelNumber = 0; //debug tests
+                //ChangeLevels();
             }
         }
         static void StartUp()
@@ -70,13 +76,16 @@ namespace BasicTextRPG
             playerDamage = 1;
             playerCoins = 0;
             floorMap = File.ReadAllLines(path);
+            playerMaxX = floorMap[0].Length + 2;
+            playerMaxY = floorMap.Length + 2;
             borderLength = floorMap[0].Length + 2;
             gameIsOver = false;
+            levelChanged = false;
         }
         static void DrawMap()
         {
             //Draws the map of the current level
-            Console.Clear();
+            Console.SetCursorPosition(0,0);
             for(int i = 0; i < borderLength; i++)
             {
                 DrawBorder();
@@ -84,12 +93,18 @@ namespace BasicTextRPG
             Console.Write("\n");
             for(int y = 0; y < floorMap.Length; y++)
             {
-                string mapRow = floorMap[y];
+                mapRow = floorMap[y];
                 DrawBorder();
                 for(int x = 0; x < mapRow.Length; x++)
                 {
                     char tile = mapRow[x];
                     DrawTile(tile);
+                    if(tile == '=' && levelChanged == false)
+                    {
+                        playerX = x+1;
+                        playerY = y+1;
+                        levelChanged = true;
+                    }
                 }
                 DrawBorder();
                 Console.Write("\n");
@@ -132,7 +147,7 @@ namespace BasicTextRPG
         }
         static void DrawHUD()
         {
-            Console.Write(string.Format("HP:{0}  Damage:{1} Coins:{2}",basePlayerHP, playerDamage, playerCoins));
+            Console.WriteLine(string.Format("HP:{0}  Damage:{1} Coins:{2}",basePlayerHP, playerDamage, playerCoins));
         }
         static void DrawFloor()
         {
@@ -287,6 +302,7 @@ namespace BasicTextRPG
         }
         static void ChangeLevels()
         {
+            levelChanged = false;
             // used to change maps
             if(levelNumber == 1)
             {
@@ -311,6 +327,74 @@ namespace BasicTextRPG
                 Console.WriteLine("Level Out of range, Loading level 1");
                 path = path1;
                 floorMap = File.ReadAllLines(path);
+            }
+        }
+        static void GetInput()
+        {
+            Console.SetCursorPosition(playerX,playerY);
+            DrawPlayer();
+            playerInput = Console.ReadKey(true);
+            //Console.WriteLine(playerInput.Key); //debug to see what key is pressed
+            if(playerInput.Key == ConsoleKey.W || playerInput.Key == ConsoleKey.UpArrow)
+            {
+                //Moves player up
+                playerY -= 1;
+                if(playerY < 0)
+                {
+                    playerY = 0;
+                }
+                if(mapRow[playerX] == dungeonWall && floorMap[playerY] == mapRow)
+                {
+                    playerY += 1;
+                }
+                Console.SetCursorPosition(playerX,playerY);
+                DrawPlayer();
+            }if(playerInput.Key == ConsoleKey.S || playerInput.Key == ConsoleKey.DownArrow)
+            {
+                //Moves player down
+                playerY += 1;
+                if(playerX > playerMaxX)
+                {
+                    playerX = playerMaxX;
+                }
+                if(mapRow[playerX] == dungeonWall && floorMap[playerY] == mapRow)
+                {
+                    playerY -= 1;
+                }
+                Console.SetCursorPosition(playerX,playerY);
+                DrawPlayer();
+            }if(playerInput.Key == ConsoleKey.A || playerInput.Key == ConsoleKey.LeftArrow)
+            {
+                //Moves player left
+                playerX -= 1;
+                if(playerX < 0)
+                {
+                    playerX = 0;
+                }
+                if(mapRow[playerX] == dungeonWall && floorMap[playerY] == mapRow)
+                {
+                    playerX += 1;
+                }
+                Console.SetCursorPosition(playerX,playerY);
+                DrawPlayer();
+            }if(playerInput.Key == ConsoleKey.D || playerInput.Key == ConsoleKey.RightArrow)
+            {
+                //Moves player right
+                playerX += 1;
+                if(playerY > playerMaxY)
+                {
+                    playerY = playerMaxY;
+                }
+                if(mapRow[playerX] == dungeonWall)
+                {
+                    playerX -= 1;
+                }
+                Console.SetCursorPosition(playerX,playerY);
+                DrawPlayer();
+            }
+            if(playerInput.Key == ConsoleKey.Escape)
+            {
+               Environment.Exit(0);
             }
         }
     }
