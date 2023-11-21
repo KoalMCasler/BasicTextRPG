@@ -36,16 +36,19 @@ namespace BasicTextRPG
         static int mapX;
         static int mapY;      
         //Player variables
+        static bool IsPlayersTurn;
         static bool gameIsOver;
         static int basePlayerHP;
         static int playerDamage;
+        static int basePlayerDamage;
         static int playerCoins;
         static int playerX;
         static int playerY;
         static ConsoleKeyInfo playerInput;
         //Enemy Variables
-        static int baseEnemyHP = 5;
-        static int enemyDamage = 1;
+        static bool IsEnemyTurn;
+        static int baseEnemyHP;
+        static int enemyDamage;
         static int enemyCount;
 
         static void Main()
@@ -57,7 +60,7 @@ namespace BasicTextRPG
             {
                 DrawMap();
                 GetInput();
-                DrawPlayer();
+                //DrawPlayer();
             }
         }
         static void StartUp()
@@ -69,12 +72,15 @@ namespace BasicTextRPG
             playerDamage = 1;
             playerCoins = 0;
             enemyCount = 0;
+            enemyDamage = 1;
             path = path1;
             floorMap = File.ReadAllLines(path);
             dungeonMap = new char[floorMap.Length, floorMap[0].Length];
             MakeDungeonMap();
             mapX = dungeonMap.GetLength(1);
             mapY = dungeonMap.GetLength(0);
+            playerMaxY = mapY -1;
+            playerMaxX = mapX -1;
             gameIsOver = false;
             levelChanged = false;
         }
@@ -318,6 +324,7 @@ namespace BasicTextRPG
         }
         static void GetInput()
         {
+            
             int moveX;
             int moveY;
             bool playerMoved;
@@ -342,42 +349,84 @@ namespace BasicTextRPG
                     }
                     else
                     {
-                        //if(dungeonMap[moveY,playerX] == '-')
-                        //{
-                            playerMoved = true;
-                            playerY = moveY;
-                            if(playerY <= 0)
-                            {
-                                playerY = 0;
-                            }
-                        //}
+                        playerMoved = true;
+                        playerY = moveY;
+                        if(playerY <= 0)
+                        {
+                            playerY = 0;
+                        }
                     }
-
-
-                }if(playerInput.Key == ConsoleKey.S || playerInput.Key == ConsoleKey.DownArrow)
+                }
+                if(playerInput.Key == ConsoleKey.S || playerInput.Key == ConsoleKey.DownArrow)
                 {
                     //Moves player down
-
-                    if(dungeonMap[playerY,playerX] == '#')
-                    {return;}
-
-                }if(playerInput.Key == ConsoleKey.A || playerInput.Key == ConsoleKey.LeftArrow)
+                    moveY = (playerY + 1);
+                    if(moveY >= playerMaxY)
+                    {
+                        moveY = playerMaxY; //Locks top of screen
+                    }
+                    if(dungeonMap[moveY,playerX] == '#')
+                    {
+                        moveY = playerY;
+                        playerY = moveY;
+                        return;
+                    }
+                    else
+                    {
+                        playerMoved = true;
+                        playerY = moveY;
+                        if(playerY >= playerMaxY)
+                        {
+                            playerY = playerMaxY;
+                        }
+                    }
+                }
+                if(playerInput.Key == ConsoleKey.A || playerInput.Key == ConsoleKey.LeftArrow)
                 {
                     //Moves player left
-                    if(dungeonMap[playerY,playerX] == '#')
-                    {return;}
+                    moveX = (playerX - 1);
+                    if(moveX <= 0)
+                    {
+                        moveX = 0; //Locks top of screen
+                    }
+                    if(dungeonMap[playerY,moveX] == '#')
+                    {
+                        moveX = playerX;
+                        playerX = moveX;
+                        return;
+                    }
                     else
                     {
-
+                        playerMoved = true;
+                        playerX = moveX;
+                        if(playerX <= 0)
+                        {
+                            playerX = 0;
+                        }
                     }
-                }if(playerInput.Key == ConsoleKey.D || playerInput.Key == ConsoleKey.RightArrow)
+                }
+                if(playerInput.Key == ConsoleKey.D || playerInput.Key == ConsoleKey.RightArrow)
                 {
                     //Moves player right
-                    if(dungeonMap[playerY,playerX] == '#')
-                    {return;}
+                    moveX = (playerX + 1);
+                    if(moveX >= playerMaxX)
+                    {
+                        moveX = playerMaxX; //Locks top of screen
+                    }
+                    if(dungeonMap[playerY,moveX] == '#')
+                    {
+                        moveX = playerX;
+                        playerX = moveX;
+                        return;
+                    }
                     else
                     {
-
+                        playerMoved = true;
+                        playerX = moveX;
+                        if(playerX >= playerMaxX)
+                        {
+                            playerX = playerMaxX;
+                        }
                     }
                 }
                 if(playerInput.Key == ConsoleKey.Escape)
