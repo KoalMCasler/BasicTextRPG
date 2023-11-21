@@ -50,6 +50,10 @@ namespace BasicTextRPG
         static int baseEnemyHP;
         static int enemyDamage;
         static int enemyCount;
+        static int enemy1X;
+        static int enemy1Y;
+        static int enemy2X;
+        static int enemy2Y;
 
         static void Main()
         {
@@ -107,6 +111,16 @@ namespace BasicTextRPG
                     if(tile == '!' || tile == '?')
                     {
                         enemyCount += 1;
+                        if(tile == '?')
+                        {
+                            enemy1X = x;
+                            enemy1Y = y;
+                        }
+                        if(tile == '!')
+                        {
+                            enemy2X = x;
+                            enemy2Y = y;
+                        }
                     }
                 }
                 Console.Write("\n");
@@ -114,7 +128,10 @@ namespace BasicTextRPG
             WriteLegend();
             DrawHUD(); // Just here to test function
             SetPLayerPosition();
-            DrawPlayer();
+            SetEnemyPosition(1);
+            SetEnemyPosition(2);
+            Console.SetCursorPosition(0,0);
+            
         }
         static void WriteLegend()
         {
@@ -215,6 +232,24 @@ namespace BasicTextRPG
         static void SetPLayerPosition()
         {
             Console.SetCursorPosition(playerX,playerY);
+            DrawPlayer();
+        }
+        static void SetEnemyPosition(int enemyNumber)
+        {
+            if(enemyNumber > 2 || enemyNumber < 1)
+            {
+                enemyNumber = 1;
+            }
+            if(enemyNumber == 1)
+            {
+                Console.SetCursorPosition(enemy1X,enemy1Y);
+                DrawEnemy(enemyNumber);
+            }
+            if(enemyNumber == 2)
+            {
+                Console.SetCursorPosition(enemy2X,enemy2Y);
+                DrawEnemy(enemyNumber);
+            }
         }
         static void DrawEnemy(int enemyNumber)
         {
@@ -275,17 +310,12 @@ namespace BasicTextRPG
             }
             if(tile == '!')
             {
-                DrawEnemy(1);
+                DrawFloor();
                 return;
             }
             if(tile == '?')
             {
-                DrawEnemy(2);
-                return;
-            }
-            if(tile == '+')
-            {
-                DrawPlayer();
+                DrawFloor();
                 return;
             }
             else
