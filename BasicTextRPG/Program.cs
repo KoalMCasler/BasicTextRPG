@@ -17,7 +17,6 @@ namespace BasicTextRPG
         static string path1 = @"Floor1Map.txt";
         static string path2 = @"Floor2Map.txt";
         static string path3 = @"Floor3Map.txt";
-        static char border = ((char)4);
         static char dungeonFloor = ((char)18);
         static char dungeonWall = ((char)35);
         static char spikeTrap = ((char)23);
@@ -30,7 +29,6 @@ namespace BasicTextRPG
         static char enemy2 = ((char)6);
         static string[] floorMap;
         static char[,] dungeonMap;
-        static int borderLength;
         static int levelNumber;
         static bool levelChanged;
         static int playerMaxX;
@@ -59,6 +57,7 @@ namespace BasicTextRPG
             {
                 DrawMap();
                 GetInput();
+                DrawPlayer();
             }
         }
         static void StartUp()
@@ -76,7 +75,6 @@ namespace BasicTextRPG
             MakeDungeonMap();
             mapX = dungeonMap.GetLength(1);
             mapY = dungeonMap.GetLength(0);
-            borderLength = dungeonMap.GetLength(1)+2;
             gameIsOver = false;
             levelChanged = false;
         }
@@ -88,22 +86,16 @@ namespace BasicTextRPG
             {
                 enemyCount = 0;
             }
-            for(int i = 0; i < borderLength; i++)
-            {
-                DrawBorder();
-            }
-            Console.Write("\n");
             for(int y = 0; y < mapY; y++)
             {
-                DrawBorder();
                 for(int x = 0; x < mapX; x++)
                 {
                     char tile = dungeonMap[y,x];
                     DrawTile(tile);
                     if(tile == '=' && levelChanged == false)
                     {
-                        playerX = x+1;
-                        playerY = y+1;
+                        playerX = x;
+                        playerY = y-1;
                         levelChanged = true;
                     }
                     if(tile == '!' || tile == '?')
@@ -111,15 +103,12 @@ namespace BasicTextRPG
                         enemyCount += 1;
                     }
                 }
-                DrawBorder();
                 Console.Write("\n");
-            }
-            for(int i = 0; i < borderLength; i++)
-            {
-                DrawBorder();
             }
             WriteLegend();
             DrawHUD(); // Just here to test function
+            SetPLayerPosition();
+            DrawPlayer();
         }
         static void WriteLegend()
         {
@@ -131,9 +120,6 @@ namespace BasicTextRPG
             Console.Write("Walls = ");
             DrawWall();
             Console.Write("\n");
-            Console.Write("Border = ");
-            DrawBorder();
-            Console.Write("             ");
             Console.Write("Player = ");
             DrawPlayer();
             Console.Write("\n");
@@ -198,14 +184,6 @@ namespace BasicTextRPG
             Console.ForegroundColor = ConsoleColor.White;
             Console.BackgroundColor = ConsoleColor.Black;
         }
-        static void DrawBorder()
-        {
-            // used to draw border tiles
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.BackgroundColor = ConsoleColor.Black;
-            Console.Write(border);
-            SetColorDefault();
-        }
         static void DrawStairsDown()
         {
             Console.ForegroundColor = ConsoleColor.DarkGray;
@@ -227,6 +205,10 @@ namespace BasicTextRPG
             Console.BackgroundColor = ConsoleColor.Gray;
             Console.Write(player);
             SetColorDefault();
+        }
+        static void SetPLayerPosition()
+        {
+            Console.SetCursorPosition(playerX,playerY);
         }
         static void DrawEnemy(int enemyNumber)
         {
@@ -255,7 +237,7 @@ namespace BasicTextRPG
                 DrawFloor();
                 return;
             }
-            if(tile == dungeonWall)
+            if(tile == '#')
             {
                 DrawWall();
                 return;
@@ -336,60 +318,72 @@ namespace BasicTextRPG
         }
         static void GetInput()
         {
-            int newX;
-            int newY;
-            Console.SetCursorPosition(playerX,playerY);
-            DrawPlayer();
+            int moveX;
+            int moveY;
+            bool playerMoved;
+            playerMoved = false;
             playerInput = Console.ReadKey(true);
             //Console.WriteLine(playerInput.Key); //debug to see what key is pressed
-            if(playerInput.Key == ConsoleKey.W || playerInput.Key == ConsoleKey.UpArrow)
+            if(playerMoved == false)
             {
-                //Moves player up
-                newY = playerY - 1;
-                if(dungeonMap[newY,playerX] == dungeonWall)
-                {newY = playerY;}
-                if(dungeonMap[newY,playerX] == dungeonFloor)
+                if(playerInput.Key == ConsoleKey.W || playerInput.Key == ConsoleKey.UpArrow)
                 {
-                    dungeonMap[newY,playerX] = player;
-                }
+                    //Moves player up
+                    moveY = (playerY - 1);
+                    if(moveY <= 0)
+                    {
+                        moveY = 0; //Locks top of screen
+                    }
+                    if(dungeonMap[moveY,playerX] == '#')
+                    {
+                        moveY = playerY;
+                        playerY = moveY;
+                        return;
+                    }
+                    else
+                    {
+                        //if(dungeonMap[moveY,playerX] == '-')
+                        //{
+                            playerMoved = true;
+                            playerY = moveY;
+                            if(playerY <= 0)
+                            {
+                                playerY = 0;
+                            }
+                        //}
+                    }
 
 
-            }if(playerInput.Key == ConsoleKey.S || playerInput.Key == ConsoleKey.DownArrow)
-            {
-                //Moves player down
-
-                if(dungeonMap[playerY,playerX] == dungeonWall)
-                {return;}
-
-            }if(playerInput.Key == ConsoleKey.A || playerInput.Key == ConsoleKey.LeftArrow)
-            {
-                //Moves player left
-                if(dungeonMap[playerY,playerX] == dungeonWall)
-                {return;}
-                else
+                }if(playerInput.Key == ConsoleKey.S || playerInput.Key == ConsoleKey.DownArrow)
                 {
+                    //Moves player down
 
-                }
-            }if(playerInput.Key == ConsoleKey.D || playerInput.Key == ConsoleKey.RightArrow)
-            {
-                //Moves player right
-                if(dungeonMap[playerY,playerX] == dungeonWall)
-                {return;}
-                else
+                    if(dungeonMap[playerY,playerX] == '#')
+                    {return;}
+
+                }if(playerInput.Key == ConsoleKey.A || playerInput.Key == ConsoleKey.LeftArrow)
                 {
+                    //Moves player left
+                    if(dungeonMap[playerY,playerX] == '#')
+                    {return;}
+                    else
+                    {
 
+                    }
+                }if(playerInput.Key == ConsoleKey.D || playerInput.Key == ConsoleKey.RightArrow)
+                {
+                    //Moves player right
+                    if(dungeonMap[playerY,playerX] == '#')
+                    {return;}
+                    else
+                    {
+
+                    }
                 }
-            }
-            if(playerInput.Key == ConsoleKey.Escape)
-            {
-               Environment.Exit(0);
-            }
-        }
-        static void CollisionCheck()
-        {
-            if(dungeonMap[playerY,playerX] == dungeonWall)
-            {
-
+                if(playerInput.Key == ConsoleKey.Escape)
+                {
+                Environment.Exit(0);
+                }
             }
         }
         static void MakeDungeonMap()
