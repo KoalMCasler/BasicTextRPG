@@ -67,7 +67,7 @@ namespace BasicTextRPG
                 DrawMap();
                 GetInput();
                 MoveEnemy1();
-                //DrawPlayer();
+                MoveEnemy2();
             }
             Console.Clear();
             if(gameWon == true)
@@ -698,19 +698,19 @@ namespace BasicTextRPG
                     return;
                 }
                 if(dungeonMap[enemy1Y,enemyMoveX] == '#')
+                {
+                    enemyMoveX = enemy1X;
+                    enemy1X = enemyMoveX;
+                    return;
+                }
+                else
+                {
+                    enemy1X = enemyMoveX;
+                    if(enemy1X <= 0)
                     {
-                        enemyMoveX = enemy1X;
-                        enemy1X = enemyMoveX;
-                        return;
+                        enemy1X = 0;
                     }
-                    else
-                    {
-                        enemy1X = enemyMoveX;
-                        if(enemy1X <= 0)
-                        {
-                            enemy1X = 0;
-                        }
-                    }
+                }
             }
             if(moveResult == 4)
             {
@@ -738,7 +738,132 @@ namespace BasicTextRPG
         }
         static void MoveEnemy2()
         {
-
+            int enemyMoveX;
+            int enemyMoveY;
+            int rangeMaxX = 7;
+            int rangeMaxY = 5;
+            int rangeX = enemy2X - playerX;
+            int rangeY = enemy2Y - playerY;
+            if((rangeX < rangeMaxX && rangeX > -rangeMaxX)&&(rangeY < rangeMaxY && rangeY > -rangeMaxY))
+            {
+                if(rangeX < rangeMaxX && rangeX > 0)
+                {
+                    enemyMoveX = enemy2X - 1;
+                    if(enemyMoveX == playerX && enemy2Y == playerY)
+                    {
+                        TakeDamage(enemyDamage);
+                        return;
+                    }
+                    if(dungeonMap[enemy2Y,enemyMoveX] == '#')
+                    {
+                        enemyMoveX = enemy2X;
+                        enemy2X = enemyMoveX;
+                        return;
+                    }
+                    else
+                    {
+                        enemy2X = enemyMoveX;
+                        if(playerX >= playerMaxX)
+                        {
+                            enemy2X = playerMaxX;
+                        }
+                        return;
+                    }
+                }
+                if(rangeX > -rangeMaxX && rangeX < 0)
+                {
+                    enemyMoveX = enemy2X + 1;
+                    if(enemyMoveX >= playerMaxX)
+                    {
+                        enemyMoveX = playerMaxX;
+                    }
+                    if(enemyMoveX <= 0)
+                    {
+                        enemyMoveX = 0;
+                    }
+                    if(enemyMoveX == playerX && enemy2Y == playerY)
+                    {
+                        TakeDamage(enemyDamage);
+                        return;
+                    }
+                    if(dungeonMap[enemy2Y,enemyMoveX] == '#')
+                    {
+                        enemyMoveX = enemy2X;
+                        enemy2X = enemyMoveX;
+                        return;
+                    }
+                    else
+                    {
+                        enemy2X = enemyMoveX;
+                        if(enemy2X <= 0)
+                        {
+                            enemy2X = 0;
+                        }
+                        return;
+                    }
+                }
+            }
+            if((rangeX < rangeMaxX && rangeX > -rangeMaxX)&&(rangeY < rangeMaxY && rangeY > -rangeMaxY))
+            {
+                if(rangeY < rangeMaxY && rangeY > 0)
+                {
+                    enemyMoveY = enemy2Y - 1;
+                    if(enemyMoveY >= playerMaxY)
+                    {
+                        enemyMoveY = playerMaxY;
+                    }
+                    if(enemyMoveY == playerY && enemy2X == playerX)
+                    {
+                        TakeDamage(enemyDamage);
+                        return;
+                    }
+                    if(dungeonMap[enemyMoveY,enemy2X] == '#')
+                    {
+                        enemyMoveY = enemy2Y;
+                        enemy2Y = enemyMoveY;
+                        return;
+                    }
+                    else
+                    {
+                        enemy2Y = enemyMoveY;
+                        if(enemy2Y >= playerMaxY)
+                        {
+                            enemy2Y = playerMaxY;
+                        }
+                        return;
+                    }
+                }
+                if(rangeY > -rangeMaxY && rangeY < 0)
+                {
+                    enemyMoveY = enemy2Y + 1;
+                    if(enemyMoveY <= 0)
+                    {
+                        enemyMoveY = 0;
+                    }
+                    if(enemyMoveY == playerY && enemy2X == playerX)
+                    {
+                        TakeDamage(enemyDamage);
+                        return;
+                    }
+                    if(dungeonMap[enemyMoveY,enemy2X] == '#')
+                    {
+                        enemyMoveY = enemy2Y;
+                        enemy2Y = enemyMoveY;
+                        return;
+                    }
+                    else
+                    {
+                        enemy2Y = enemyMoveY;
+                        if(enemy2Y <= 0)
+                        {
+                            enemy2Y = 0;
+                        }
+                        return;
+                    }
+                }
+                else
+                {return;}
+            }
         }
     }
 }
