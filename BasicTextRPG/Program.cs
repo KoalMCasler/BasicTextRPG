@@ -39,11 +39,12 @@ namespace BasicTextRPG
         static bool IsPlayersTurn;
         static bool gameIsOver;
         static int basePlayerHP;
+        static int playerHP;
         static int playerDamage;
-        static int basePlayerDamage;
         static int playerCoins;
         static int playerX;
         static int playerY;
+        static bool gameWon;
         static ConsoleKeyInfo playerInput;
         //Enemy Variables
         static bool IsEnemyTurn;
@@ -67,8 +68,23 @@ namespace BasicTextRPG
             {
                 DrawMap();
                 GetInput();
+                MoveEnemy1();
                 //DrawPlayer();
             }
+            Console.Clear();
+            if(gameWon == true)
+            {
+                Console.WriteLine(string.Format("Congratulations! You won with {0} coins!", playerCoins));
+                Console.WriteLine("Press any key to close.");
+                Console.ReadKey(true);
+            }
+            else
+            {
+                Console.WriteLine("You have DIED!");
+                Console.WriteLine("Press any key to close.");
+                Console.ReadKey(true);
+            }
+            
         }
         static void StartUp()
         {
@@ -79,6 +95,7 @@ namespace BasicTextRPG
             playerDamage = 1;
             playerCoins = 0;
             enemyDamage = 1;
+            playerHP = basePlayerHP;
             SetEnemyHP();
             SetEnemyActive();
             path = path1;
@@ -89,6 +106,7 @@ namespace BasicTextRPG
             mapY = dungeonMap.GetLength(0);
             playerMaxY = mapY -1;
             playerMaxX = mapX -1;
+            levelNumber = 1;
             gameIsOver = false;
             levelChanged = false;
         }
@@ -125,6 +143,7 @@ namespace BasicTextRPG
                 Console.Write("\n");
             }
             WriteLegend();
+            Console.Write("\n");
             DrawHUD();
             SetPLayerPosition();
             SetEnemyPosition(1);
@@ -144,6 +163,9 @@ namespace BasicTextRPG
             Console.Write("\n");
             Console.Write("Player = ");
             DrawPlayer();
+            Console.Write("             ");
+            Console.Write("Spikes = ");
+            DrawSpikes();
             Console.Write("\n");
             Console.Write("The Grail = ");
             DrawFinalLoot();
@@ -160,7 +182,7 @@ namespace BasicTextRPG
         }
         static void DrawHUD()
         {
-            Console.WriteLine(string.Format("HP:{0}  Damage:{1}  Coins:{2}",basePlayerHP, playerDamage, playerCoins));
+            Console.WriteLine(string.Format("HP:{0}  Damage:{1}  Coins:{2}             ",playerHP, playerDamage, playerCoins));
         }
         static void DrawFloor()
         {
@@ -294,7 +316,7 @@ namespace BasicTextRPG
             }
             if(tile == '=')
             {
-                DrawStairsUp();
+                DrawWall();
                 return;
             }
             if(tile == '$')
@@ -506,6 +528,30 @@ namespace BasicTextRPG
                         }
                     }
                 }
+                if(dungeonMap[playerY,playerX] == '$')
+                {
+                    gameWon = true;
+                    gameIsOver = true;
+                }
+                if(dungeonMap[playerY,playerX] == '~')
+                {
+                    levelNumber += 1;
+                    ChangeLevels();
+                }
+                if(dungeonMap[playerY,playerX] == '@')
+                {
+                    playerCoins += 1;
+                    dungeonMap[playerY,playerX] = '-';
+                }
+                if(dungeonMap[playerY,playerX] == '*')
+                    {
+                        playerHP -= 1;
+                        if(playerHP <= 0)
+                        {
+                            gameIsOver = true;
+                            gameWon = false;
+                        }
+                    }
                 if(playerInput.Key == ConsoleKey.Escape)
                 {
                     Environment.Exit(0);
@@ -570,6 +616,125 @@ namespace BasicTextRPG
         static void TakeDamage(int damage)
         {
             //Enemies ability to damage the players
+        }
+        static void MoveEnemy1()
+        {
+            int enemyMoveX;
+            int enemyMoveY;
+            Random moveRoll = new Random();
+            int moveResult = moveRoll.Next(1,5);
+            if(moveResult == 1)
+            {
+                enemyMoveY = enemy1Y - 1;
+                if(enemyMoveY <= 0)
+                {
+                    enemyMoveY = 0;
+                }
+                if(enemyMoveY == playerY && enemy1X == playerX)
+                {
+                    TakeDamage(enemyDamage);
+                    return;
+                }
+                if(dungeonMap[enemyMoveY,enemy1X] == '#')
+                {
+                    enemyMoveY = enemy1Y;
+                    enemy1Y = enemyMoveY;
+                    return;
+                }
+                else
+                {
+                    enemy1Y = enemyMoveY;
+                    if(enemy1Y <= 0)
+                    {
+                        enemy1Y = 0;
+                    }
+                }
+            }
+            if(moveResult == 2)
+            {
+                enemyMoveY = enemy1Y + 1;
+                if(enemyMoveY >= playerMaxY)
+                {
+                    enemyMoveY = playerMaxY;
+                }
+                if(enemyMoveY == playerY && enemy1X == playerX)
+                {
+                    TakeDamage(enemyDamage);
+                    return;
+                }
+                if(dungeonMap[enemyMoveY,enemy1X] == '#')
+                {
+                    enemyMoveY = enemy1Y;
+                    enemy1Y = enemyMoveY;
+                    return;
+                }
+                else
+                {
+                    enemy1Y = enemyMoveY;
+                    if(enemy1Y >= playerMaxY)
+                    {
+                        enemy1Y = playerMaxY;
+                    }
+                }
+            }
+            if(moveResult == 3)
+            {
+                enemyMoveX = enemy1X - 1;
+                if(enemyMoveX >= playerMaxX)
+                {
+                    enemyMoveX = playerMaxX;
+                }
+                if(enemyMoveX <= 0)
+                {
+                    enemyMoveX = 0;
+                }
+                if(enemyMoveX == playerX && enemy1Y == playerY)
+                {
+                    TakeDamage(enemyDamage);
+                    return;
+                }
+                if(dungeonMap[enemy1Y,enemyMoveX] == '#')
+                    {
+                        enemyMoveX = enemy1X;
+                        enemy1X = enemyMoveX;
+                        return;
+                    }
+                    else
+                    {
+                        enemy1X = enemyMoveX;
+                        if(enemy1X <= 0)
+                        {
+                            enemy1X = 0;
+                        }
+                    }
+            }
+            if(moveResult == 4)
+            {
+                enemyMoveX = enemy1X + 1;
+                if(enemyMoveX == playerX && enemy1Y == playerY)
+                {
+                    TakeDamage(enemyDamage);
+                    return;
+                }
+                if(dungeonMap[enemy1Y,enemyMoveX] == '#')
+                {
+                    enemyMoveX = enemy1X;
+                    enemy1X = enemyMoveX;
+                    return;
+                }
+                else
+                {
+                    enemy1X = enemyMoveX;
+                    if(playerX >= playerMaxX)
+                    {
+                        enemy1X = playerMaxX;
+                    }
+                }
+            }
+        }
+        static void MoveEnemy2()
+        {
+
         }
     }
 }
