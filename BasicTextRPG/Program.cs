@@ -48,11 +48,15 @@ namespace BasicTextRPG
         //Enemy Variables
         static bool IsEnemyTurn;
         static int baseEnemyHP;
+        static int enemy1HP;
+        static int enemy2HP;
         static int enemyDamage;
         static int enemy1X;
         static int enemy1Y;
         static int enemy2X;
         static int enemy2Y;
+        static bool enemy1IsActive;
+        static bool enemy2IsActive;
 
         static void Main()
         {
@@ -75,6 +79,8 @@ namespace BasicTextRPG
             playerDamage = 1;
             playerCoins = 0;
             enemyDamage = 1;
+            SetEnemyHP();
+            SetEnemyActive();
             path = path1;
             floorMap = File.ReadAllLines(path);
             dungeonMap = new char[floorMap.Length, floorMap[0].Length];
@@ -102,7 +108,7 @@ namespace BasicTextRPG
                         playerY = y-1;
                         levelChanged = true;
                     }
-                    if(tile == '!' || tile == '?')
+                    if(tile == '!' && levelChanged == false || tile == '?' && levelChanged == false)
                     {
                         if(tile == '?')
                         {
@@ -154,7 +160,7 @@ namespace BasicTextRPG
         }
         static void DrawHUD()
         {
-            Console.WriteLine(string.Format("HP:{0}  Damage:{1} Coins:{2}",basePlayerHP, playerDamage, playerCoins));
+            Console.WriteLine(string.Format("HP:{0}  Damage:{1}  Coins:{2}",basePlayerHP, playerDamage, playerCoins));
         }
         static void DrawFloor()
         {
@@ -233,12 +239,12 @@ namespace BasicTextRPG
             {
                 enemyNumber = 1;
             }
-            if(enemyNumber == 1)
+            if(enemyNumber == 1 && enemy1IsActive == true)
             {
                 Console.SetCursorPosition(enemy1X,enemy1Y);
                 DrawEnemy(enemyNumber);
             }
-            if(enemyNumber == 2)
+            if(enemyNumber == 2 && enemy2IsActive == true)
             {
                 Console.SetCursorPosition(enemy2X,enemy2Y);
                 DrawEnemy(enemyNumber);
@@ -344,11 +350,18 @@ namespace BasicTextRPG
                 path = path1;
                 floorMap = File.ReadAllLines(path);
             }
+            SetEnemyHP();
+            SetEnemyActive();
             MakeDungeonMap();
+        }
+        static void SetEnemyHP()
+        {
+            enemy1HP = baseEnemyHP/2*levelNumber;
+            enemy2HP = baseEnemyHP/3*levelNumber;
         }
         static void GetInput()
         {
-            
+            SetPlayerDamage();
             int moveX;
             int moveY;
             bool playerMoved;
@@ -364,6 +377,16 @@ namespace BasicTextRPG
                     if(moveY <= 0)
                     {
                         moveY = 0; //Locks top of screen
+                    }
+                    if(moveY == enemy1Y && playerX == enemy1X)
+                    {
+                        DoDamage(playerDamage, 1);
+                        return;
+                    }
+                    if(moveY == enemy2Y && playerX == enemy2X)
+                    {
+                        DoDamage(playerDamage, 2);
+                        return;
                     }
                     if(dungeonMap[moveY,playerX] == '#')
                     {
@@ -389,6 +412,16 @@ namespace BasicTextRPG
                     {
                         moveY = playerMaxY; //Locks top of screen
                     }
+                    if(moveY == enemy1Y && playerX == enemy1X)
+                    {
+                        DoDamage(playerDamage, 1);
+                        return;
+                    }
+                    if(moveY == enemy2Y && playerX == enemy2X)
+                    {
+                        DoDamage(playerDamage, 2);
+                        return;
+                    }
                     if(dungeonMap[moveY,playerX] == '#')
                     {
                         moveY = playerY;
@@ -413,6 +446,16 @@ namespace BasicTextRPG
                     {
                         moveX = 0; //Locks top of screen
                     }
+                    if(moveX == enemy1X && playerY == enemy1Y)
+                    {
+                        DoDamage(playerDamage, 1);
+                        return;
+                    }
+                    if(moveX == enemy2X && playerY == enemy2Y)
+                    {
+                        DoDamage(playerDamage, 2);
+                        return;
+                    }
                     if(dungeonMap[playerY,moveX] == '#')
                     {
                         moveX = playerX;
@@ -436,6 +479,16 @@ namespace BasicTextRPG
                     if(moveX >= playerMaxX)
                     {
                         moveX = playerMaxX; //Locks top of screen
+                    }
+                    if(moveX == enemy1X && playerY == enemy1Y)
+                    {
+                        DoDamage(playerDamage, 1);
+                        return;
+                    }
+                    if(moveX == enemy2X && playerY == enemy2Y)
+                    {
+                        DoDamage(playerDamage, 2);
+                        return;
                     }
                     if(dungeonMap[playerY,moveX] == '#')
                     {
@@ -472,9 +525,51 @@ namespace BasicTextRPG
         static void Intro()
         {
             Console.WriteLine("Try to get to the 3rd floor and collect the grail!");
-            Console.WriteLine("Collect as much gold as you can along the way");
+            Console.WriteLine("Collect gold along the way to increase your power");
             Console.WriteLine("Press any key to get stated, Escape will exit once in game.");
             Console.ReadKey(true);
+        }
+        static void SetPlayerDamage()
+        {
+            playerDamage = playerCoins;
+            if(playerDamage <= 0)
+            {
+                playerDamage = 1;
+            }
+        }
+        static void DoDamage(int damage, int enemyNumber)
+        {
+            if(enemyNumber == 1)
+            {
+                enemy1HP -= damage;
+                if(enemy1HP <= 0)
+                {
+                    enemy1X = 0;
+                    enemy1Y = 0;
+                    enemy1IsActive = false;
+                }
+            }
+            if(enemyNumber == 2)
+            {
+                enemy2HP -= damage;
+                if(enemy2HP <= 0)
+                {
+                    enemy2X = 0;
+                    enemy2Y = 0;
+                    enemy2IsActive = false;
+                }
+            }
+            else
+            {return;}
+        }
+        static void SetEnemyActive()
+        {
+            enemy1IsActive = true;
+            enemy2IsActive = true;
+        }
+        static void TakeDamage(int damage)
+        {
+            //Enemies ability to damage the players
         }
     }
 }
