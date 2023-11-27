@@ -49,7 +49,6 @@ namespace BasicTextRPG
         static bool IsEnemyTurn;
         static int baseEnemyHP;
         static int enemyDamage;
-        static int enemyCount;
         static int enemy1X;
         static int enemy1Y;
         static int enemy2X;
@@ -75,7 +74,6 @@ namespace BasicTextRPG
             levelNumber = 1;
             playerDamage = 1;
             playerCoins = 0;
-            enemyCount = 0;
             enemyDamage = 1;
             path = path1;
             floorMap = File.ReadAllLines(path);
@@ -92,10 +90,6 @@ namespace BasicTextRPG
         {
             //Draws the map of the current level
             Console.SetCursorPosition(0,0);
-            if(levelChanged == true)
-            {
-                enemyCount = 0;
-            }
             for(int y = 0; y < mapY; y++)
             {
                 for(int x = 0; x < mapX; x++)
@@ -110,7 +104,6 @@ namespace BasicTextRPG
                     }
                     if(tile == '!' || tile == '?')
                     {
-                        enemyCount += 1;
                         if(tile == '?')
                         {
                             enemy1X = x;
@@ -126,7 +119,7 @@ namespace BasicTextRPG
                 Console.Write("\n");
             }
             WriteLegend();
-            DrawHUD(); // Just here to test function
+            DrawHUD();
             SetPLayerPosition();
             SetEnemyPosition(1);
             SetEnemyPosition(2);
@@ -351,6 +344,7 @@ namespace BasicTextRPG
                 path = path1;
                 floorMap = File.ReadAllLines(path);
             }
+            MakeDungeonMap();
         }
         static void GetInput()
         {
@@ -461,7 +455,7 @@ namespace BasicTextRPG
                 }
                 if(playerInput.Key == ConsoleKey.Escape)
                 {
-                Environment.Exit(0);
+                    Environment.Exit(0);
                 }
             }
         }
@@ -477,7 +471,7 @@ namespace BasicTextRPG
         }
         static void Intro()
         {
-            Console.WriteLine("Kill all they enemies on each floor to get to the next");
+            Console.WriteLine("Try to get to the 3rd floor and collect the grail!");
             Console.WriteLine("Collect as much gold as you can along the way");
             Console.WriteLine("Press any key to get stated, Escape will exit once in game.");
             Console.ReadKey(true);
