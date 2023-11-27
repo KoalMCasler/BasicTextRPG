@@ -36,7 +36,6 @@ namespace BasicTextRPG
         static int mapX;
         static int mapY;      
         //Player variables
-        static bool IsPlayersTurn;
         static bool gameIsOver;
         static int basePlayerHP;
         static int playerHP;
@@ -47,7 +46,6 @@ namespace BasicTextRPG
         static bool gameWon;
         static ConsoleKeyInfo playerInput;
         //Enemy Variables
-        static bool IsEnemyTurn;
         static int baseEnemyHP;
         static int enemy1HP;
         static int enemy2HP;
@@ -616,6 +614,12 @@ namespace BasicTextRPG
         static void TakeDamage(int damage)
         {
             //Enemies ability to damage the players
+            playerHP -= damage;
+            if(playerHP <= 0)
+            {
+                gameWon = false;
+                gameIsOver = true;
+            }
         }
         static void MoveEnemy1()
         {
