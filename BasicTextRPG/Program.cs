@@ -123,6 +123,8 @@ namespace BasicTextRPG
                         playerX = x;
                         playerY = y-1;
                         levelChanged = true;
+                        dungeonMap[y,x] = '#';
+
                     }
                     if(tile == '!' && levelChanged == false || tile == '?' && levelChanged == false)
                     {
