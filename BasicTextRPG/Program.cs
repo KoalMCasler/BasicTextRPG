@@ -182,7 +182,7 @@ namespace BasicTextRPG
         }
         static void DrawHUD()
         {
-            Console.WriteLine(string.Format("HP:{0}  Damage:{1}  Coins:{2}             ",playerHP, playerDamage, playerCoins));
+            Console.WriteLine(string.Format("HP:{0}  Damage:{1}  Coins:{2}  Floor:{3}             ",playerHP, playerDamage, playerCoins,levelNumber));
         }
         static void DrawFloor()
         {
