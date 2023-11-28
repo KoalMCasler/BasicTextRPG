@@ -564,7 +564,7 @@ namespace BasicTextRPG
                 {
                  dungeonMap[i, j] = floorMap[i][j];
                 }
-            }
+            } 
         }
         static void Intro()
         {
