@@ -36,8 +36,8 @@ namespace BasicTextRPG
         static char coin = ((char)164);
         static char enemy1 = ((char)4);
         static char enemy2 = ((char)6);
-        static char enemy3 = ((char)0);
-        static char enemy4 = ((char)0);
+        static char enemy3 = ((char)5);
+        static char enemy4 = ((char)127);
         static char healthPickup = ((char)3);
         //Player variables
         static bool gameIsOver;
@@ -51,7 +51,9 @@ namespace BasicTextRPG
         static ConsoleKeyInfo playerInput;
         //Enemies Variables
         static int baseEnemyHP;
+        static int move4Result;
         static int enemyTypes = 4;
+        static int enemyCount;
         static int enemy1HP;
         static int enemy2HP;
         static int enemy3HP;
@@ -81,6 +83,9 @@ namespace BasicTextRPG
                 GetInput();
                 MoveEnemy1();
                 MoveEnemy2();
+                MoveEnemy3();
+                move4Result += 1;
+                MoveEnemy4();
             }
             Console.Clear();
             if(gameWon == true)
@@ -106,6 +111,7 @@ namespace BasicTextRPG
             playerDamage = 1;
             playerCoins = 0;
             enemyDamage = 1;
+            enemyCount = enemyTypes;
             playerHP = basePlayerHP;
             SetEnemyHP();
             SetEnemyActive();
@@ -139,7 +145,8 @@ namespace BasicTextRPG
                         dungeonMap[y,x] = '#';
 
                     }
-                    if(tile == '!' && levelChanged == false || tile == '?' && levelChanged == false || tile == '&' && levelChanged == false)
+                    if(tile == '!' && levelChanged == false || tile == '?' && levelChanged == false
+                    || tile == '&' && levelChanged == false || tile == '^' && levelChanged == false)
                     {
                         if(tile == '?')
                         {
@@ -156,16 +163,22 @@ namespace BasicTextRPG
                             enemy3X = x;
                             enemy3Y = y; 
                         }
+                        if(tile == '^')
+                        {
+                            enemy4X = x;
+                            enemy4Y = y;
+                        }
                     }
                 }
                 Console.Write("\n");
             }
             WriteLegend();
-            Console.Write("\n");
             DrawHUD();
             SetPLayerPosition();
             SetEnemyPosition(1);
             SetEnemyPosition(2);
+            SetEnemyPosition(3);
+            SetEnemyPosition(4);
             Console.SetCursorPosition(0,0);
             
         }
@@ -176,8 +189,8 @@ namespace BasicTextRPG
             Console.Write("Floor = ");
             DrawFloor();
             Console.Write("              ");
-            Console.Write("Walls = ");
-            DrawWall();
+            Console.Write("Health pickup = ");
+            DrawHealthPickup();
             Console.Write("\n");
             Console.Write("Player = ");
             DrawPlayer();
@@ -197,10 +210,16 @@ namespace BasicTextRPG
             Console.Write("Enemy 2 = ");
             DrawEnemy(2);
             Console.Write("\n");
+             Console.Write("Enemy 3 = ");
+            DrawEnemy(3);
+            Console.Write("            ");
+            Console.Write("Enemy 4 = ");
+            DrawEnemy(4);
+            Console.Write("\n");
         }
         static void DrawHUD()
         {
-            Console.WriteLine(string.Format("HP:{0}  Damage:{1}  Coins:{2}  Floor:{3}             ",playerHP, playerDamage, playerCoins,levelNumber));
+            Console.WriteLine(string.Format("HP:{0}  Damage:{1}  Coins:{2}  Floor:{3}       ",playerHP, playerDamage, playerCoins,levelNumber));
         }
         static void DrawFloor()
         {
@@ -253,11 +272,11 @@ namespace BasicTextRPG
             Console.Write(stairsDown);
             SetColorDefault();
         }
-        static void DrawStairsUp()
+        static void DrawHealthPickup()
         {
-            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.ForegroundColor = ConsoleColor.DarkRed;
             Console.BackgroundColor = ConsoleColor.Gray;
-            Console.Write(stairsUp);
+            Console.Write(healthPickup);
             SetColorDefault();
         }
         static void DrawPlayer()
@@ -275,7 +294,7 @@ namespace BasicTextRPG
         }
         static void SetEnemyPosition(int enemyNumber)
         {
-            if(enemyNumber > 2 || enemyNumber < 1)
+            if(enemyNumber > enemyTypes || enemyNumber < 1)
             {
                 enemyNumber = 1;
             }
@@ -289,23 +308,41 @@ namespace BasicTextRPG
                 Console.SetCursorPosition(enemy2X,enemy2Y);
                 DrawEnemy(enemyNumber);
             }
+            if(enemyNumber == 3 && enemy3IsActive == true)
+            {
+                Console.SetCursorPosition(enemy3X,enemy3Y);
+                DrawEnemy(enemyNumber);
+            }
+            if(enemyNumber == 4 && enemy4IsActive == true)
+            {
+                Console.SetCursorPosition(enemy4X,enemy4Y);
+                move4Result = 0;
+                DrawEnemy(enemyNumber);
+            }
         }
         static void DrawEnemy(int enemyNumber)
         {
             Console.BackgroundColor = ConsoleColor.Gray;
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
             if(enemyNumber > enemyTypes || enemyNumber < 1)
             {
                 enemyNumber = 1;
             }
             if(enemyNumber == 1)
             {
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
                 Console.Write(enemy1);
             }
             if(enemyNumber == 2)
             {
-                Console.ForegroundColor = ConsoleColor.Green;
                 Console.Write(enemy2);
+            }
+            if(enemyNumber == 3)
+            {
+                Console.Write(enemy3);
+            }
+            if(enemyNumber == 4)
+            {
+                Console.Write(enemy4);
             }
             SetColorDefault();
         }
@@ -347,12 +384,27 @@ namespace BasicTextRPG
                 DrawCoin();
                 return;
             }
+            if(tile == '"')
+            {
+                DrawHealthPickup();
+                return;
+            }
             if(tile == '!')
             {
                 DrawFloor();
                 return;
             }
             if(tile == '?')
+            {
+                DrawFloor();
+                return;
+            }
+            if(tile == '&')
+            {
+                DrawFloor();
+                return;
+            }
+            if(tile == '^')
             {
                 DrawFloor();
                 return;
@@ -364,6 +416,7 @@ namespace BasicTextRPG
         }
         static void ChangeLevels()
         {
+            enemyCount = enemyTypes;
             levelChanged = false;
             // used to change maps
             if(levelNumber == 1)
@@ -398,6 +451,8 @@ namespace BasicTextRPG
         {
             enemy1HP = baseEnemyHP/2*levelNumber;
             enemy2HP = baseEnemyHP/3*levelNumber;
+            enemy3HP = 1;
+            enemy4HP = baseEnemyHP/4*levelNumber;
         }
         static void GetInput()
         {
@@ -426,6 +481,16 @@ namespace BasicTextRPG
                     if(moveY == enemy2Y && playerX == enemy2X)
                     {
                         DoDamage(playerDamage, 2);
+                        return;
+                    }
+                    if(moveY == enemy3Y && playerX == enemy3X)
+                    {
+                        DoDamage(playerDamage, 3);
+                        return;
+                    }
+                    if(moveY == enemy4Y && playerX == enemy4X)
+                    {
+                        DoDamage(playerDamage, 4);
                         return;
                     }
                     if(dungeonMap[moveY,playerX] == '#')
@@ -462,6 +527,16 @@ namespace BasicTextRPG
                         DoDamage(playerDamage, 2);
                         return;
                     }
+                    if(moveY == enemy3Y && playerX == enemy3X)
+                    {
+                        DoDamage(playerDamage, 3);
+                        return;
+                    }
+                    if(moveY == enemy4Y && playerX == enemy4X)
+                    {
+                        DoDamage(playerDamage, 4);
+                        return;
+                    }
                     if(dungeonMap[moveY,playerX] == '#')
                     {
                         moveY = playerY;
@@ -496,6 +571,17 @@ namespace BasicTextRPG
                         DoDamage(playerDamage, 2);
                         return;
                     }
+                    if(moveX == enemy3X && playerY == enemy3Y)
+                    {
+                        DoDamage(playerDamage, 3);
+                        return;
+                    }
+                    if(moveX == enemy4X && playerY == enemy4Y)
+                    {
+                        DoDamage(playerDamage, 4);
+                        return;
+                    }
+                    
                     if(dungeonMap[playerY,moveX] == '#')
                     {
                         moveX = playerX;
@@ -530,6 +616,17 @@ namespace BasicTextRPG
                         DoDamage(playerDamage, 2);
                         return;
                     }
+                    if(moveX == enemy3X && playerY == enemy3Y)
+                    {
+                        DoDamage(playerDamage, 3);
+                        return;
+                    }
+                    if(moveX == enemy4X && playerY == enemy4Y)
+                    {
+                        DoDamage(playerDamage, 4);
+                        return;
+                    }
+                    
                     if(dungeonMap[playerY,moveX] == '#')
                     {
                         moveX = playerX;
@@ -551,7 +648,7 @@ namespace BasicTextRPG
                     gameWon = true;
                     gameIsOver = true;
                 }
-                if(dungeonMap[playerY,playerX] == '~')
+                if(dungeonMap[playerY,playerX] == '~' && enemyCount <= 0)
                 {
                     levelNumber += 1;
                     ChangeLevels();
@@ -559,6 +656,11 @@ namespace BasicTextRPG
                 if(dungeonMap[playerY,playerX] == '@')
                 {
                     playerCoins += 1;
+                    dungeonMap[playerY,playerX] = '-';
+                }
+                if(dungeonMap[playerY,playerX] == '"' && playerHP < basePlayerHP)
+                {
+                    Heal();
                     dungeonMap[playerY,playerX] = '-';
                 }
                 if(dungeonMap[playerY,playerX] == '*')
@@ -576,6 +678,14 @@ namespace BasicTextRPG
                 }
             }
         }
+        static void Heal()
+        {
+            playerHP += levelNumber;
+            if(playerHP > basePlayerHP)
+            {
+                playerHP = basePlayerHP;
+            }
+        }
         static void MakeDungeonMap()
         {
             for (int i = 0; i < floorMap.Length; i++)
@@ -589,6 +699,7 @@ namespace BasicTextRPG
         static void Intro()
         {
             Console.WriteLine("Try to get to the 3rd floor and collect the grail!");
+            Console.WriteLine("You must defeat all enemies on each floor to advance to the next!");
             Console.WriteLine("Collect gold along the way to increase your power");
             Console.WriteLine("Press any key to get stated, Escape will exit once in game.");
             Console.ReadKey(true);
@@ -611,6 +722,7 @@ namespace BasicTextRPG
                     enemy1X = 0;
                     enemy1Y = 0;
                     enemy1IsActive = false;
+                    enemyCount -= 1;
                 }
             }
             if(enemyNumber == 2)
@@ -621,6 +733,29 @@ namespace BasicTextRPG
                     enemy2X = 0;
                     enemy2Y = 0;
                     enemy2IsActive = false;
+                    enemyCount -= 1;
+                }
+            }
+            if(enemyNumber == 3)
+            {
+                enemy3HP -= damage;
+                if(enemy3HP <= 0)
+                {
+                    enemy3X = 0;
+                    enemy3Y = 0;
+                    enemy3IsActive = false;
+                    enemyCount -= 1;
+                }
+            }
+            if(enemyNumber == 4)
+            {
+                enemy4HP -= damage;
+                if(enemy4HP <= 0)
+                {
+                    enemy4X = 0;
+                    enemy4Y = 0;
+                    enemy4IsActive = false;
+                    enemyCount -= 1;
                 }
             }
             else
@@ -630,6 +765,8 @@ namespace BasicTextRPG
         {
             enemy1IsActive = true;
             enemy2IsActive = true;
+            enemy3IsActive = true;
+            enemy4IsActive = true;
         }
         static void TakeDamage(int damage)
         {
@@ -883,6 +1020,250 @@ namespace BasicTextRPG
                 }
                 else
                 {return;}
+            }
+        }
+        static void MoveEnemy3()
+        {
+            int enemyMoveX;
+            int enemyMoveY;
+            int rangeMaxX = 7;
+            int rangeMaxY = 5;
+            int rangeX = enemy3X - playerX;
+            int rangeY = enemy3Y - playerY;
+            if((rangeX < rangeMaxX && rangeX > -rangeMaxX)&&(rangeY < rangeMaxY && rangeY > -rangeMaxY))
+            {
+                if(rangeX < rangeMaxX && rangeX > 0)
+                {
+                    enemyMoveX = enemy3X + 1;
+                    if(enemyMoveX == playerX && enemy3Y == playerY)
+                    {
+                        TakeDamage(enemyDamage);
+                        return;
+                    }
+                    if(dungeonMap[enemy3Y,enemyMoveX] == '#')
+                    {
+                        enemyMoveX = enemy3X;
+                        enemy3X = enemyMoveX;
+                        return;
+                    }
+                    else
+                    {
+                        enemy3X = enemyMoveX;
+                        if(playerX >= playerMaxX)
+                        {
+                            enemy3X = playerMaxX;
+                        }
+                        return;
+                    }
+                }
+                if(rangeX > -rangeMaxX && rangeX < 0)
+                {
+                    enemyMoveX = enemy3X - 1;
+                    if(enemyMoveX >= playerMaxX)
+                    {
+                        enemyMoveX = playerMaxX;
+                    }
+                    if(enemyMoveX <= 0)
+                    {
+                        enemyMoveX = 0;
+                    }
+                    if(enemyMoveX == playerX && enemy3Y == playerY)
+                    {
+                        TakeDamage(enemyDamage);
+                        return;
+                    }
+                    if(dungeonMap[enemy3Y,enemyMoveX] == '#')
+                    {
+                        enemyMoveX = enemy3X;
+                        enemy3X = enemyMoveX;
+                        return;
+                    }
+                    else
+                    {
+                        enemy3X = enemyMoveX;
+                        if(enemy3X <= 0)
+                        {
+                            enemy3X = 0;
+                        }
+                        return;
+                    }
+                }
+            }
+            if((rangeX < rangeMaxX && rangeX > -rangeMaxX)&&(rangeY < rangeMaxY && rangeY > -rangeMaxY))
+            {
+                if(rangeY < rangeMaxY && rangeY > 0)
+                {
+                    enemyMoveY = enemy2Y + 1;
+                    if(enemyMoveY >= playerMaxY)
+                    {
+                        enemyMoveY = playerMaxY;
+                    }
+                    if(enemyMoveY == playerY && enemy2X == playerX)
+                    {
+                        TakeDamage(enemyDamage);
+                        return;
+                    }
+                    if(dungeonMap[enemyMoveY,enemy2X] == '#')
+                    {
+                        enemyMoveY = enemy2Y;
+                        enemy2Y = enemyMoveY;
+                        return;
+                    }
+                    else
+                    {
+                        enemy2Y = enemyMoveY;
+                        if(enemy2Y >= playerMaxY)
+                        {
+                            enemy2Y = playerMaxY;
+                        }
+                        return;
+                    }
+                }
+                if(rangeY > -rangeMaxY && rangeY < 0)
+                {
+                    enemyMoveY = enemy2Y - 1;
+                    if(enemyMoveY <= 0)
+                    {
+                        enemyMoveY = 0;
+                    }
+                    if(enemyMoveY == playerY && enemy2X == playerX)
+                    {
+                        TakeDamage(enemyDamage);
+                        return;
+                    }
+                    if(dungeonMap[enemyMoveY,enemy2X] == '#')
+                    {
+                        enemyMoveY = enemy2Y;
+                        enemy2Y = enemyMoveY;
+                        return;
+                    }
+                    else
+                    {
+                        enemy2Y = enemyMoveY;
+                        if(enemy2Y <= 0)
+                        {
+                            enemy2Y = 0;
+                        }
+                        return;
+                    }
+                }
+                else
+                {return;}
+            }
+        }
+        static void MoveEnemy4()
+        {
+            int enemyMoveX;
+            int enemyMoveY;
+            Random moveRoll = new Random();
+            int moveResult = moveRoll.Next(1,5);
+            if(moveResult == 1)
+            {
+                enemyMoveY = enemy4Y - 1;
+                if(enemyMoveY <= 0)
+                {
+                    enemyMoveY = 0;
+                }
+                if(enemyMoveY == playerY && enemy4X == playerX)
+                {
+                    TakeDamage(enemyDamage);
+                    return;
+                }
+                if(dungeonMap[enemyMoveY,enemy4X] == '#')
+                {
+                    enemyMoveY = enemy4Y;
+                    enemy4Y = enemyMoveY;
+                    return;
+                }
+                else
+                {
+                    enemy4Y = enemyMoveY;
+                    if(enemy4Y <= 0)
+                    {
+                        enemy4Y = 0;
+                    }
+                }
+            }
+            if(moveResult == 2)
+            {
+                enemyMoveY = enemy4Y + 1;
+                if(enemyMoveY >= playerMaxY)
+                {
+                    enemyMoveY = playerMaxY;
+                }
+                if(enemyMoveY == playerY && enemy1X == playerX)
+                {
+                    TakeDamage(enemyDamage);
+                    return;
+                }
+                if(dungeonMap[enemyMoveY,enemy4X] == '#')
+                {
+                    enemyMoveY = enemy4Y;
+                    enemy4Y = enemyMoveY;
+                    return;
+                }
+                else
+                {
+                    enemy4Y = enemyMoveY;
+                    if(enemy4Y >= playerMaxY)
+                    {
+                        enemy4Y = playerMaxY;
+                    }
+                }
+            }
+            if(moveResult == 3)
+            {
+                enemyMoveX = enemy4X - 1;
+                if(enemyMoveX >= playerMaxX)
+                {
+                    enemyMoveX = playerMaxX;
+                }
+                if(enemyMoveX <= 0)
+                {
+                    enemyMoveX = 0;
+                }
+                if(enemyMoveX == playerX && enemy4Y == playerY)
+                {
+                    TakeDamage(enemyDamage);
+                    return;
+                }
+                if(dungeonMap[enemy4Y,enemyMoveX] == '#')
+                {
+                    enemyMoveX = enemy4X;
+                    enemy4X = enemyMoveX;
+                    return;
+                }
+                else
+                {
+                    enemy4X = enemyMoveX;
+                    if(enemy4X <= 0)
+                    {
+                        enemy4X = 0;
+                    }
+                }
+            }
+            if(moveResult == 4)
+            {
+                enemyMoveX = enemy4X + 1;
+                if(enemyMoveX == playerX && enemy4Y == playerY)
+                {
+                    TakeDamage(enemyDamage);
+                    return;
+                }
+                if(dungeonMap[enemy4Y,enemyMoveX] == '#')
+                {
+                    enemyMoveX = enemy4X;
+                    enemy4X = enemyMoveX;
+                    return;
+                }
+                else
+                {
+                    enemy4X = enemyMoveX;
+                    if(playerX >= playerMaxX)
+                    {
+                        enemy4X = playerMaxX;
+                    }
+                }
             }
         }
     }
