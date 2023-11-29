@@ -17,16 +17,6 @@ namespace BasicTextRPG
         static string path1 = @"Floor1Map.txt";
         static string path2 = @"Floor2Map.txt";
         static string path3 = @"Floor3Map.txt";
-        static char dungeonFloor = ((char)18);
-        static char dungeonWall = ((char)35);
-        static char spikeTrap = ((char)23);
-        static char player = ((char)167);
-        static char stairsDown = ((char)30);
-        static char stairsUp = ((char)31);
-        static char finalLoot = ((char)165);
-        static char coin = ((char)164);
-        static char enemy1 = ((char)4);
-        static char enemy2 = ((char)6);
         static string[] floorMap;
         static char[,] dungeonMap;
         static int levelNumber;
@@ -34,7 +24,21 @@ namespace BasicTextRPG
         static int playerMaxX;
         static int playerMaxY;  
         static int mapX;
-        static int mapY;      
+        static int mapY;
+        // Ascii variables    
+        static char dungeonFloor = ((char)18);
+        static char dungeonWall = ((char)35);
+        static char spikeTrap = ((char)23);
+        static char player = ((char)2);
+        static char stairsDown = ((char)30);
+        static char stairsUp = ((char)31);
+        static char finalLoot = ((char)165);
+        static char coin = ((char)164);
+        static char enemy1 = ((char)4);
+        static char enemy2 = ((char)6);
+        static char enemy3 = ((char)0);
+        static char enemy4 = ((char)0);
+        static char healthPickup = ((char)3);
         //Player variables
         static bool gameIsOver;
         static int basePlayerHP;
@@ -45,17 +49,26 @@ namespace BasicTextRPG
         static int playerY;
         static bool gameWon;
         static ConsoleKeyInfo playerInput;
-        //Enemy Variables
+        //Enemies Variables
         static int baseEnemyHP;
+        static int enemyTypes = 4;
         static int enemy1HP;
         static int enemy2HP;
+        static int enemy3HP;
+        static int enemy4HP;
         static int enemyDamage;
         static int enemy1X;
         static int enemy1Y;
         static int enemy2X;
         static int enemy2Y;
+        static int enemy3X;
+        static int enemy3Y;
+        static int enemy4X;
+        static int enemy4Y;
         static bool enemy1IsActive;
         static bool enemy2IsActive;
+        static bool enemy3IsActive;
+        static bool enemy4IsActive;
 
         static void Main()
         {
@@ -126,7 +139,7 @@ namespace BasicTextRPG
                         dungeonMap[y,x] = '#';
 
                     }
-                    if(tile == '!' && levelChanged == false || tile == '?' && levelChanged == false)
+                    if(tile == '!' && levelChanged == false || tile == '?' && levelChanged == false || tile == '&' && levelChanged == false)
                     {
                         if(tile == '?')
                         {
@@ -137,6 +150,11 @@ namespace BasicTextRPG
                         {
                             enemy2X = x;
                             enemy2Y = y;
+                        }
+                        if(tile == '&')
+                        {
+                            enemy3X = x;
+                            enemy3Y = y; 
                         }
                     }
                 }
@@ -275,7 +293,7 @@ namespace BasicTextRPG
         static void DrawEnemy(int enemyNumber)
         {
             Console.BackgroundColor = ConsoleColor.Gray;
-            if(enemyNumber > 2 || enemyNumber < 1)
+            if(enemyNumber > enemyTypes || enemyNumber < 1)
             {
                 enemyNumber = 1;
             }
